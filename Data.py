@@ -34,94 +34,113 @@ def getADL(high, low, close, volume):
 def getOBV(close, volume):
     df_OBV = talib.OBV(close, volume)
     return df_OBV
-    
-
 
 if __name__ == '__main__':
     #stock_id = input("請輸入股票代碼: ")
-    stock_id = '2330'
+    stock_id = '2330' # 本實驗以台積電(2330)做研究對象
     stock = Stock(stock_id)
     stock_name = twstock.codes[stock_id].name
     print(f"股票: {stock_name} ({stock_id}) ")
     
-    target_list = [] # 使用 target_list 包 feature
-    data = stock.fetch_from(2024,2) # 擷取2024/4 至今股票資料
+    data = stock.fetch_from(2020,4) # 擷取2020/4 至今該股票資料
     
     #將股票最高價、最低價、收盤價、成交量等資訊紀錄於獨立的list，方便使用於股票指標計算
-    high = [] #當日最高價list
-    low = [] #當日最低價list
-    close = [] #收盤價list
-    volume = []
+    high = [] #當日最高價
+    low = [] #當日最低價
+    close = [] #收盤價
+    volume = [] #成交量
+    change = [] #漲跌幅
+    
     for item in data:
         high.append(item.high)
         low.append(item.low)
         close.append(item.close)
-        volume.append(item.Transcation)
+        volume.append(float(item.capacity))
+        change.append(item.change)
+        
     high = np.array(high)
     low = np.array(low)
     close = np.array(close)
-    volume = np.array((volume))
+    volume = np.array(volume)
+    change = np.array(change)
+    
     '''
     使用以下股票指標作為特徵:
-    股價相關指標: 
+    基本指標: 
+    1、最高價
+    2、最低價
+    3、收盤價
+    4、成交量
     
-    1、布林通道:
-        產生上軌、中軌、下軌等三種軌道線，模擬常態分佈假設。
-        當日收盤價-上軌值 / 收盤價，做特徵值upperLoss
-        當日收盤價-中軌值 / 收盤價，做特徵值middleLoss
-        當日收盤價-下軌值 / 收盤價，做特徵值lowerLoss
-    2、相對強弱指標(RSI)
-    3、平均趨向指標(ADX)
-    4、隨機震盪指標(KD)
+    股價相關指標: 
+    5 6 7、布林通道:
+        產生上軌、中軌、下軌等三種軌道線，模擬常態分佈假設，
+        將三種指標分別加入特徵列表中
+    8、相對強弱指標(RSI)
+    9、平均趨向指標(ADX)
+    10 11、隨機震盪指標(KD)
         K line : 快線
         D line : 慢線
-    5、A/D line
     
     交易量相關指標:
     
-    6、能量潮指標(OBV)
+    12、A/D line
+    13、能量潮指標(OBV)
     
-    7、成交量
-    
+    最後整理特徵列表時，發現平均趨向指標(ADX)，前27筆資料作為計算值，沒有準確的資料值
+    因此，將所有指標捨棄前27筆資料。
     -----------------------------------------------------
-    
-    
+    14、Class:
+    依據當日是否收紅做分類，若當日收盤價大於等於前日收盤價，則回傳 1 
+    若小於前日收盤價則回傳 0
     
     '''
-    # (一) 布林通道
+    # (五 六 七) 布林通道
     upper, middle, lower = getBollingerBand(close)
-    upperLoss, middleLoss, lowerLoss = [], [], []
     
-    #for upperData, middleData, lowerData in zip(upper, middle, lower, ):
+    # (八) RSI 
+    df_RSI = getRSI(close) 
     
-    # (二) RSI
-    df_RSI = getRSI(close)
-    
-    # (三) ADX
+    # (九) ADX
     df_ADX = getADX(high, low, close)
-    
-    # (四) KD
+   
+    # (十 十一) KD
     slowk, slowd = getKD(high, low, close)
     
-    # (五) A/D line
+    # (十二) A/D line
     df_ADL = getADL(high, low, close, volume)
     
-    # (六) OBV
+    # (十三) OBV
     df_OBV = getOBV(close, volume)
     
-    # (七) 成交量
+    # (十四) Class
+    classList = []
+    for item in data:
+        if item.change >= 1:
+            classList.append(1)
+        else:
+            classList.append(0)
+    #整理特徵列表
+    ##########################################
+    data_num = len(data)
     
+    # 建立資料表並合併資料
+    df = pd.DataFrame({"high":high[27:data_num],
+                       'low':low[27:data_num],
+                       'close':close[27:data_num],
+                       'volume':volume[27:data_num],
+                       'upper':upper[27:data_num],
+                       'middle':middle[27:data_num],
+                       'lower':lower[27:data_num],
+                       'RSI':df_RSI[27:data_num],
+                       'ADX':df_ADX[27:data_num],
+                       'slowk':slowk[27:data_num],
+                       'slowd':slowd[27:data_num],
+                       'ADL':df_ADL[27:data_num],
+                       'OBV':df_OBV[27:data_num],
+                       'Class':classList[27:data_num],
+                       })
     
-    
-    
-    
-    
-    
-    
-    # # 建立資料表並合併資料
-    # name_attribute = ['Date', 'Capacity', 'Turnover', 'Open', 'High', 'Low', 'Close', 'Change', 'Transcation','Class']
-    # df = pd.DataFrame(columns = name_attribute, data = target_list)
-
-    # #存取資料
-    # filename = f'C:/Users/PC1110223B/Desktop/112-2HW/Fundamental_Enselmble_Learning/project/{stock_id}.csv'
-    # df.to_csv(filename)
+    #存取資料
+    filename = f'C:/Users/PC1110223B/Desktop/112-2HW/Fundamental_Enselmble_Learning/project/{stock_id}.txt'
+    df.to_csv(filename, sep=' ', index=False, header = False)
