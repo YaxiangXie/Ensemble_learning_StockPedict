@@ -42,7 +42,7 @@ if __name__ == '__main__':
     stock_name = twstock.codes[stock_id].name
     print(f"股票: {stock_name} ({stock_id}) ")
     
-    data = stock.fetch_from(2020,4) # 擷取2020/4 至今該股票資料
+    data = stock.fetch_from(2020,10) # 擷取2020/4 至今該股票資料
     
     #將股票最高價、最低價、收盤價、成交量等資訊紀錄於獨立的list，方便使用於股票指標計算
     high = [] #當日最高價
@@ -142,5 +142,5 @@ if __name__ == '__main__':
                        })
     
     #存取資料
-    filename = f'C:/Users/PC1110223B/Desktop/112-2HW/Fundamental_Enselmble_Learning/project/{stock_id}.txt'
+    filename = f'C:/Users/謝亞翔/Desktop/112-2HW/Fundamental_Enselmble_Learning/Ensemble_learning_StockPedict/{stock_id}.txt'
     df.to_csv(filename, sep=' ', index=False, header = False)
