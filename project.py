@@ -20,23 +20,44 @@ from sklearn.ensemble import StackingClassifier
 
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
 
-import matplotlib.pyplot as plt
 
-class stackingModel:
+class Models:
     def __init__(self):
-        self.baseLearner = []
         self.bagging = BaggingClassifier(n_estimators = 30)
-        self.random_forest = RandomForestClassifier(n_estimators = 30, min_samples_split = 10, min_samples_leaf = 10)
         self.adaboost = AdaBoostClassifier(n_estimators = 20)
         self.gradient_boost = GradientBoostingClassifier(n_estimators = 35, min_samples_split = 10, min_samples_leaf = 10)
+        self.random_forest = RandomForestClassifier(n_estimators = 30, min_samples_split = 10, min_samples_leaf = 10)
+        self.stacking = None
+
+    def Modelset(self):
+        LearnerList = {'Bagging':self.bagging,
+                       'Adaboost':self.adaboost,
+                       'Gradient_boost':self.gradient_boost,
+                       'Random_forest':self.random_forest,
+                       'StackingLearner': Models.getStacking()
+                       }
+        return LearnerList
+        
+        
+    def getStacking(self):
+        base = [['Bagging',self.bagging],
+                ['Adaboost',self.adaboost],
+                ['Gradient_boost',self.gradient_boost],
+                ['Random_forest',self.random_forest]
+                ]
+        metaLearner = LogisticRegression()
+        StackingLearner = StackingClassifier(estimators = base, final_estimator = metaLearner, cv = 5)
+        return StackingLearner
     
-    def setModels(self):
-        self.baseLearner.append(self.bagging)
-        self.baseLearner.append(self.random_forest)
-        self.baseLearner.append(self.adaboost)
-        self.baseLearner.append(self.gradient_boost)
     
+
+   
+def evaluate_model(model, X, y):
+	cv_scheme = RepeatedStratifiedKFold(n_splits = 10, n_repeats = 3, random_state = 47)
+	cv_scores = cross_val_score(model, X, y, scoring = 'accuracy', cv = cv_scheme)
+	return cv_scores 
     
         
     
