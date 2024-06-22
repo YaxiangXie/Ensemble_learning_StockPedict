@@ -23,11 +23,11 @@ from sklearn.model_selection import cross_val_score
 class Models:
     # 初始建構各基本學習機
     def __init__(self):
-        self.bagging = BaggingClassifier(n_estimators = 30)
-        self.adaboost = AdaBoostClassifier(n_estimators = 20)
-        self.gradient_boost = GradientBoostingClassifier(n_estimators = 35, min_samples_split = 10, min_samples_leaf = 10)
-        self.random_forest = RandomForestClassifier(n_estimators = 30, min_samples_split = 10, min_samples_leaf = 10)
-        self.knn = KNeighborsClassifier(n_neighbors = 5, algorithm = 'auto')
+        self.bagging = BaggingClassifier(n_estimators = 40)
+        self.adaboost = AdaBoostClassifier(n_estimators = 40)
+        self.gradient_boost = GradientBoostingClassifier(n_estimators = 50, min_samples_split = 10, min_samples_leaf = 10)
+        self.random_forest = RandomForestClassifier(n_estimators = 50, min_samples_split = 10, min_samples_leaf = 10)
+        self.knn = KNeighborsClassifier(n_neighbors = 7, algorithm = 'auto')
         self.decision_tree = DecisionTreeClassifier(criterion = 'entropy', splitter = 'random', max_depth = 15)
         self.stacking = None
         self.LearnerList = {}
@@ -73,25 +73,25 @@ def evaluate_model_Accuracy_score(model, X_train, X_test, y_train, y_test):
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     return accuracy_score(y_test, y_pred)
-    
+ 
 if __name__ == '__main__':
     #Load Dataset and standardize
-    dataset = np.loadtxt("2330.txt", delimiter = " ")
+    dataset = np.loadtxt("2359.txt", delimiter = " ")
     dataset_X = dataset[:, 0:13]
     target = dataset[:, 13]
     
-    # 測試使用: 減少部分特徵向量，觀察是否能提高學習機準確率，最終僅發現刪除布林通道中軌指標(20均線)，會導致整體學習機準確率下降
-    #dataset_X = np.delete(dataset_X, [0,1], axis= 1)  
+    # 測試使用: 減少部分特徵向量，觀察是否能提高學習機準確率，最終並未發現關鍵特徵向量
+    #dataset_X = np.delete(dataset_X, [12, 5], axis= 1)  
 
-    print(dataset_X.shape)    #(994, 13)
-    print(target.shape)    #(994)
+    print(dataset_X.shape)    #(956, 13)
+    print(target.shape)    #(956)
 
     dataset_X = preprocessing.scale(dataset_X)
 
     X_train, X_test, y_train, y_test = train_test_split(dataset_X, target, train_size = 0.7, stratify = target, random_state = 47)
     
-    print(f"訓練資料樣本數: {len(X_train)}")  #695
-    print(f"測試資料樣本數: {len(X_test)}")  #299
+    print(f"訓練資料樣本數: {len(X_train)}")  #669
+    print(f"測試資料樣本數: {len(X_test)}")  #287
 
     ############################################
     Models = Models()
@@ -119,4 +119,6 @@ if __name__ == '__main__':
     print('-' * 30)
     print("\033[33m Accuracy score\033[0m")
     print(df2)
+    
+    
     

@@ -37,12 +37,12 @@ def getOBV(close, volume):
 
 if __name__ == '__main__':
     #stock_id = input("請輸入股票代碼: ")
-    stock_id = '2330' # 本實驗以台積電(2330)做研究對象
+    stock_id = '2359' # 本實驗以所羅門(2359)做研究對象
     stock = Stock(stock_id)
     stock_name = twstock.codes[stock_id].name
-    print(f"股票: {stock_name} ({stock_id}) ")
+    print(f"股票: {stock_name} ({stock_id}) 資料開始匯出 ")
     
-    data = stock.fetch_from(2020,4) # 擷取2020/4 至今該股票資料
+    data = stock.fetch_from(2020,6) # 擷取2020/6 至今該股票資料
     
     #將股票最高價、最低價、收盤價、成交量等資訊紀錄於獨立的list，方便使用於股票指標計算
     high = [] #當日最高價
@@ -57,13 +57,12 @@ if __name__ == '__main__':
         close.append(item.close)
         volume.append(float(item.capacity))
         change.append(item.change)
-        
+    close_pred = close  # 比較隔日股價用 
     high = np.array(high)
     low = np.array(low)
     close = np.array(close)
     volume = np.array(volume)
     change = np.array(change)
-    
     '''
     使用以下股票指標作為特徵:
     基本指標: 
@@ -115,11 +114,15 @@ if __name__ == '__main__':
     
     # (十四) Class
     classList = []
-    for item in data:
-        if item.change >= 1:
-            classList.append(1)
-        else:
+    close_pred.pop(0)#移項
+    close_pred.append(0)
+    #今日收盤價和明日收盤價比較，若上漲，則回傳 1
+    for i in range(len(close)):
+        if close[i] > close_pred[i]:
             classList.append(0)
+        else:
+            classList.append(1)
+    classList = np.array(classList)
     #整理特徵列表
     ##########################################
     data_num = len(data)
