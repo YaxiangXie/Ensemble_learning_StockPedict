@@ -2,7 +2,7 @@ import numpy as np
 from numpy import random
 random.seed(47)
 import os
-path = f"C:/Users/PC1110223B/Desktop/112-2HW/Fundamental_Enselmble_Learning/project"
+path = f"C:/Users/PC1110223B/Desktop/stock_pred/Ensemble_learning_StockPedict"
 os.chdir(path)
 import pandas as pd
 

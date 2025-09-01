@@ -145,5 +145,5 @@ if __name__ == '__main__':
                        })
     
     #存取資料
-    filename = f'C:/Users/PC1110223B/Desktop/112-2HW/Fundamental_Enselmble_Learning/project/{stock_id}.txt'
+    filename = f'C:/Users/PC1110223B/Desktop/stock_pred/Ensemble_learning_StockPedict/{stock_id}.txt'
     df.to_csv(filename, sep=' ', index=False, header = False)
